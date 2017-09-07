@@ -3,7 +3,12 @@ import {connect} from 'react-redux'
 import {reduxForm} from 'redux-form'
 
 import {showLoad, hideLoad} from 'src/common/actions/app'
-import {findUsers, updateUser} from 'src/common/actions/user'
+import {
+  findUsers,
+  updateUser,
+  deactivateUser,
+  reactivateUser,
+} from 'src/common/actions/user'
 import {findPhases} from 'src/common/actions/phase'
 import {userSchema, asyncValidate} from 'src/common/validations'
 import UserForm from 'src/common/components/UserForm'
@@ -39,6 +44,10 @@ UserFormContainer.propTypes = {
   fetchData: PropTypes.func.isRequired,
   showLoad: PropTypes.func.isRequired,
   hideLoad: PropTypes.func.isRequired,
+  user: PropTypes.object,
+  currentUser: PropTypes.object,
+  onDeactivateUser: PropTypes.func.isRequired,
+  onReactivateUser: PropTypes.func.isRequired,
 }
 
 UserFormContainer.fetchData = fetchData
@@ -58,7 +67,7 @@ function handleSubmit(dispatch) {
 
 function mapStateToProps(state, props) {
   const {identifier} = props.params
-  const {app, users, phases} = state
+  const {app, users, phases, auth} = state
   const user = findAny(users.users, identifier, ['id', 'handle'])
 
   const sortedPhases = Object.values(phases.phases).sort((p1, p2) => p1.number - p2.number)
@@ -83,6 +92,7 @@ function mapStateToProps(state, props) {
     formType,
     user,
     initialValues,
+    currentUser: auth.currentUser,
   }
 }
 
@@ -96,6 +106,8 @@ function mapDispatchToProps(dispatch, props) {
     fetchData: () => fetchData(dispatch, props),
     showLoad: () => dispatch(showLoad()),
     hideLoad: () => dispatch(hideLoad()),
+    onDeactivateUser: id => dispatch(deactivateUser(id)),
+    onReactivateUser: id => dispatch(reactivateUser(id)),
   }
 }
 
